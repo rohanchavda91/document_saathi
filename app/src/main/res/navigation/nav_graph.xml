@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <!-- Splash Screen -->
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.rohan.documentsaathi.feature.splash.ui.SplashFragment"
+        android:label="">
+        <action
+            android:id="@+id/action_splash_to_home"
+            app:destination="@id/homeFragment"
+            app:exitAnim="@android:anim/fade_out"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Home (Document List + Scanner Entry) -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.rohan.documentsaathi.feature.home.ui.HomeFragment"
+        android:label="Document Saathi">
+        <action
+            android:id="@+id/action_home_to_scanner"
+            app:destination="@id/scannerFragment" />
+        <action
+            android:id="@+id/action_home_to_document_detail"
+            app:destination="@id/documentDetailFragment">
+            <argument
+                android:name="documentId"
+                app:argType="long" />
+        </action>
+    </fragment>
+
+    <!-- Camera Scanner -->
+    <fragment
+        android:id="@+id/scannerFragment"
+        android:name="com.rohan.documentsaathi.feature.scanner.ui.ScannerFragment"
+        android:label="Scanner">
+        <action
+            android:id="@+id/action_scanner_to_ocr_result"
+            app:destination="@id/ocrResultFragment">
+            <argument
+                android:name="extractedText"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <!-- OCR Result + Summarization -->
+    <fragment
+        android:id="@+id/ocrResultFragment"
+        android:name="com.rohan.documentsaathi.feature.ocr.ui.OcrResultFragment"
+        android:label="Scan Result">
+        <argument
+            android:name="extractedText"
+            app:argType="string" />
+        <argument
+            android:name="documentImagePath"
+            android:defaultValue=""
+            app:argType="string" />
+        <action
+            android:id="@+id/action_ocr_result_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_ocr_result_to_summarization"
+            app:destination="@id/summarization_result_fragment"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
+    </fragment>
+
+    <!-- Summarization Result -->
+    <fragment
+        android:id="@+id/summarization_result_fragment"
+        android:name="com.rohan.documentsaathi.feature.summarization.SummarizationResultFragment"
+        android:label="Summary">
+        <argument
+            android:name="extractedText"
+            app:argType="string" />
+        <argument
+            android:name="selectedLanguage"
+            android:defaultValue="en"
+            app:argType="string" />
+        <argument
+            android:name="documentImagePath"
+            android:defaultValue=""
+            app:argType="string" />
+    </fragment>
+
+    <!-- Document Detail View (History) -->
+    <fragment
+        android:id="@+id/documentDetailFragment"
+        android:name="com.rohan.documentsaathi.feature.document.ui.DocumentDetailFragment"
+        android:label="Document Details">
+        <argument
+            android:name="documentId"
+            app:argType="long" />
+    </fragment>
+
+</navigation>

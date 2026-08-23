@@ -1,0 +1,22 @@
+# API Keys & Secrets
+local.properties
+*.jks
+*.keystore
+
+# Android Build
+build/
+.gradle/
+.idea/
+*.apk
+*.aab
+*.iml
+
+# IDE
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local

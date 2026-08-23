@@ -1,0 +1,3 @@
+- `[ ]` Update `MainActivity.kt` to hide toolbar for HomeFragment and refine insets
+- `[ ]` Update `activity_main.xml` to refine `fitsSystemWindows`
+- `[ ]` Verify UI on device

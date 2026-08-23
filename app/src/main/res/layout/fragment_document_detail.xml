@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical"
+    tools:context=".feature.document_detail.DocumentDetailFragment">
+
+    <!-- Top AppBar with Title -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/surface"
+        android:elevation="4dp"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/document_detail"
+        app:titleMarginStart="@dimen/spacing_md"
+        app:titleTextColor="@color/text_primary" />
+
+    <!-- Scrollable Content Area -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingVertical="@dimen/spacing_lg">
+
+            <!-- Document Metadata Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/radius_lg"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <!-- Document Title -->
+                    <TextView
+                        android:id="@+id/tv_document_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="@string/document_title_placeholder"
+                        android:textColor="@color/text_primary"
+                        android:textSize="@dimen/text_h2" />
+
+                    <!-- Metadata Grid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:orientation="vertical">
+
+                        <!-- Scanned Date -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/spacing_sm"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="@string/date"
+                                android:scaleType="centerInside"
+                                android:src="@drawable/ic_calendar"
+                                android:tint="@color/primary" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_medium"
+                                android:text="@string/scanned_date"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_small" />
+
+                            <TextView
+                                android:id="@+id/tv_scanned_date"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_regular"
+                                android:text="@string/date_placeholder"
+                                android:textColor="@color/text_primary"
+                                android:textSize="@dimen/text_small" />
+                        </LinearLayout>
+
+                        <!-- Source Language -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="@string/language"
+                                android:scaleType="centerInside"
+                                android:src="@drawable/ic_language"
+                                android:tint="@color/primary" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_sm"
+                                android:layout_weight="1"
+                                android:fontFamily="@font/poppins_medium"
+                                android:text="@string/source_language"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="@dimen/text_small" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip_language"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:text="@string/english"
+                                android:textSize="@dimen/text_caption"
+                                app:chipBackgroundColor="@color/primary_light"
+                                app:chipIcon="@drawable/ic_check"
+                                app:chipIconTint="@color/primary"
+                                app:textStartPadding="@dimen/spacing_sm" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Extracted Text Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/extracted_text"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_h3" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="#212121"
+                app:cardCornerRadius="@dimen/radius_lg"
+                app:cardElevation="2dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp">
+
+                        <TextView
+                            android:id="@+id/tv_extracted_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:padding="@dimen/spacing_md"
+                            android:text="@string/extracted_text_placeholder"
+                            android:textColor="@android:color/white"
+                            android:textSize="@dimen/text_body"
+                            android:textIsSelectable="true" />
+                    </ScrollView>
+
+                    <!-- Copy & Share Buttons (Top Right) -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_sm">
+
+                        <ImageButton
+                            android:id="@+id/btn_copy_text"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="@dimen/spacing_xs"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/copy_text"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_copy"
+                            android:tint="@color/primary_light" />
+
+                        <ImageButton
+                            android:id="@+id/btn_share_text"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/share_text"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_share"
+                            android:tint="@color/primary_light" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Summary Section Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="@string/summary"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_h3" />
+
+                <!-- Re-summarize Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_re_summarize"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:paddingHorizontal="@dimen/spacing_sm"
+                    android:text="@string/change_language"
+                    android:textSize="@dimen/text_caption"
+                    app:icon="@drawable/ic_refresh"
+                    app:iconSize="16dp" />
+            </LinearLayout>
+
+            <!-- Language Selection Spinner (Summarize In) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/radius_lg"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_md">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="@string/summarize_in"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="@dimen/text_caption" />
+
+                    <Spinner
+                        android:id="@+id/spinner_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:background="@drawable/spinner_background" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Summarize Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_summarize"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:text="@string/generate_summary"
+                android:textSize="@dimen/text_small"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="@dimen/radius_lg"
+                app:icon="@drawable/ic_wand"
+                app:iconGravity="textStart" />
+
+            <!-- Summary Result Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="@dimen/radius_lg"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="2dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp">
+
+                        <TextView
+                            android:id="@+id/tv_summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_regular"
+                            android:padding="@dimen/spacing_md"
+                            android:text="@string/summary_placeholder"
+                            android:textColor="@color/text_primary"
+                            android:textSize="@dimen/text_body"
+                            android:textIsSelectable="true" />
+                    </ScrollView>
+
+                    <!-- Summary Action Buttons -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_sm">
+
+                        <ImageButton
+                            android:id="@+id/btn_copy_summary"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="@dimen/spacing_xs"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/copy_summary"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_copy"
+                            android:tint="@color/primary" />
+
+                        <ImageButton
+                            android:id="@+id/btn_share_summary"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/share_summary"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_share"
+                            android:tint="@color/primary" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Loading Indicator for Summary -->
+            <LinearLayout
+                android:id="@+id/loading_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_md"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_lg"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:fontFamily="@font/poppins_medium"
+                    android:text="@string/generating_summary"
+                    android:textAlignment="center"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_small" />
+            </LinearLayout>
+
+            <!-- Action Buttons Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:layout_marginBottom="@dimen/spacing_sm"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/actions"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_h3" />
+
+            <!-- Action Buttons Grid -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_lg"
+                android:orientation="vertical"
+                android:spacing="@dimen/spacing_sm">
+
+                <!-- Row 1: Re-scan & Bookmark -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:spacing="@dimen/spacing_sm">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rescan"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/rescan"
+                        android:textSize="@dimen/text_small"
+                        app:icon="@drawable/ic_camera"
+                        app:iconGravity="textStart"
+                        app:strokeColor="@color/primary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_bookmark"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/bookmark"
+                        android:textSize="@dimen/text_small"
+                        app:icon="@drawable/ic_bookmark"
+                        app:iconGravity="textStart"
+                        app:strokeColor="@color/primary" />
+                </LinearLayout>
+
+                <!-- Row 2: Share & Delete -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:spacing="@dimen/spacing_sm">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_share_document"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/share"
+                        android:textSize="@dimen/text_small"
+                        app:icon="@drawable/ic_share"
+                        app:iconGravity="textStart"
+                        app:strokeColor="@color/primary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_delete"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="@string/delete"
+                        android:textSize="@dimen/text_small"
+                        app:icon="@drawable/ic_delete"
+                        app:iconGravity="textStart"
+                        app:iconTint="@color/error"
+                        app:strokeColor="@color/error"
+                        android:textColor="@color/error" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

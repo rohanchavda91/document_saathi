@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context=".feature.scanner.ScannerFragment">
+
+    <!-- CameraX Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:scaleType="fillCenter" />
+
+
+    <!-- Top Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="top"
+        android:background="@color/scrim_dark"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/spacing_md">
+
+        <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/back"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="@android:color/white" />
+
+        <!-- Spacer -->
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <!-- Flash Toggle Button -->
+        <ImageButton
+            android:id="@+id/btn_flash"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/toggle_flash"
+            android:scaleType="centerInside"
+            android:src="@drawable/flashlight_off_24"
+            android:tint="@android:color/white" />
+
+        <!-- Gallery Access Button -->
+        <ImageButton
+            android:id="@+id/btn_gallery"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="@string/open_gallery"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_image"
+            android:tint="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Bottom Action Panel -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/scrim_dark"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_lg">
+
+        <!-- Capture Instruction Text -->
+        <TextView
+            android:id="@+id/tv_capture_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_md"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/align_document_and_capture"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/text_small" />
+
+        <!-- Capture Button (FAB Style) -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/capture_document"
+            android:elevation="8dp"
+            app:backgroundTint="@color/primary"
+            app:fabCustomSize="@dimen/fab_size"
+            app:maxImageSize="32dp"
+            app:srcCompat="@drawable/ic_camera" />
+    </LinearLayout>
+
+    <!-- Loading Indicator (Initially Hidden) -->
+    <FrameLayout
+        android:id="@+id/loading_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/primary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/processing_ocr"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_small" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Permission Denied Message (Initially Hidden) -->
+    <FrameLayout
+        android:id="@+id/permission_denied_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_lg">
+
+            <ImageView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:contentDescription="@string/permission_denied"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_error"
+                android:tint="@color/error" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/camera_permission_denied"
+                android:textAlignment="center"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_h3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_sm"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/grant_camera_permission_message"
+                android:textAlignment="center"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_small" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_retry_permission"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/button_height"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:text="@string/grant_permission"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="@dimen/radius_lg" />
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>

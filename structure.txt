@@ -1,0 +1,55 @@
+com.rohan.documentsaathi/
+├── core/
+│   ├── constants/           # App-wide constants, config
+│   ├── extensions/          # Kotlin extensions (camera, coroutines, etc.)
+│   └── utils/               # Utilities (file handling, validation)
+│
+├── data/
+│   ├── db/                  # Room database
+│   │   ├── dao/
+│   │   ├── entity/
+│   │   └── AppDatabase.kt
+│   ├── repository/          # Data sources (local + remote)
+│   └── datasource/          # ML Kit, Gemini API integrations
+│
+├── domain/
+│   ├── model/               # Business entities (Document, ScanResult, etc.)
+│   ├── repository/          # Repository interfaces
+│   └── usecase/             # Business logic (if needed)
+│
+├── feature/
+│   ├── splash/
+│   │   ├── ui/
+│   │   │   ├── SplashFragment.kt
+│   │   │   └── SplashViewModel.kt
+│   │   └── res/
+│   │
+│   ├── home/
+│   │   ├── ui/
+│   │   │   ├── HomeFragment.kt
+│   │   │   └── HomeViewModel.kt
+│   │   └── res/
+│   │
+│   ├── scanner/
+│   │   ├── ui/
+│   │   │   ├── ScannerFragment.kt
+│   │   │   └── ScannerViewModel.kt
+│   │   └── res/
+│   │
+│   ├── ocr/
+│   │   ├── ui/
+│   │   │   ├── OcrResultFragment.kt
+│   │   │   └── OcrResultViewModel.kt
+│   │   ├── manager/         # OCR logic (ML Kit recognizers)
+│   │   └── res/
+│   │
+│   └── document/
+│       ├── ui/
+│       │   ├── DocumentDetailFragment.kt
+│       │   └── DocumentDetailViewModel.kt
+│       └── res/
+│
+├── di/                      # Hilt (deferred—add when ready)
+│   └── modules/
+│
+└── MainActivity.kt
