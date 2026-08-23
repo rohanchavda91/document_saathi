@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.rohan.documentsaathi.R
 import com.rohan.documentsaathi.databinding.FragmentDocumentDetailBinding
 import com.rohan.documentsaathi.feature.document.ui.DocumentDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,25 +54,36 @@ class DocumentDetailFragment : Fragment(){
                 binding.chipLanguage.text = document.detectedLanguage
                 binding.tvScannedDate.text = formatDate(document.createdAt)
 
-                if (document.isSummarized && !document.summary.isNullOrEmpty()) {
-                    binding.cardSummary.visibility = View.VISIBLE
-                    binding.tvSummary.text = document.summary
-                } else {
-                    binding.cardSummary.visibility = View.GONE
+                // Populate ID and Name (Extracted Info)
+                val (docId, holderName) = extractIdAndName(document.extractedText, document.summary)
+                binding.tvDocumentIdValue.text = docId ?: getString(R.string.not_available)
+                binding.tvHolderNameValue.text = holderName ?: getString(R.string.not_available)
+
+                // ID Copy button
+                binding.btnCopyDocumentId.setOnClickListener {
+                    docId?.let { copyToClipboard(it) } ?: Toast.makeText(requireContext(), "ID not available", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-//        Copy nu button
+//        Copy nu button for raw text
         binding.btnCopyText.setOnClickListener {
             val text = binding.tvExtractedText.text.toString()
             copyToClipboard(text)
         }
 
-//        Share nu btn
-        binding.btnShareText.setOnClickListener {
+//        Share document btn
+        binding.btnShareDocument.setOnClickListener {
             val text = binding.tvExtractedText.text.toString()
             shareText(text)
+        }
+
+        binding.btnRescan.setOnClickListener {
+            Toast.makeText(requireContext(), "Rescan feature coming soon", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.btnBookmark.setOnClickListener {
+            Toast.makeText(requireContext(), "Bookmark saved", Toast.LENGTH_SHORT).show()
         }
 
 //        Delete nu btn
@@ -109,6 +121,23 @@ class DocumentDetailFragment : Fragment(){
     private fun formatDate(timestamp: Long): String{
         val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
         return sdf.format(Date(timestamp))
+    }
+
+    /**
+     * Simple helper to try and extract ID and Name from text.
+     * This is a temporary measure until the AI provides structured data.
+     */
+    private fun extractIdAndName(extractedText: String, summary: String?): Pair<String?, String?> {
+        val combinedText = "$extractedText\n${summary ?: ""}"
+        
+        // Very basic regex patterns for demo purposes
+        val idRegex = Regex("(?i)(id|number|no)[:.\\s]+([A-Z0-9]{4,})")
+        val nameRegex = Regex("(?i)(name|holder)[:.\\s]+([A-Z\\s]{3,})")
+        
+        val docId = idRegex.find(combinedText)?.groupValues?.get(2)
+        val holderName = nameRegex.find(combinedText)?.groupValues?.get(2)?.trim()
+        
+        return Pair(docId, holderName)
     }
 
     override fun onDestroyView() {

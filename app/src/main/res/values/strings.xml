@@ -43,8 +43,13 @@
     <string name="hindi">Hindi</string>
     <string name="gujarati">Gujarati</string>
 
-    <string name="extracted_text">Extracted Text</string>
-    <string name="extracted_text_placeholder">Extracted text from document...</string>
+    <string name="extracted_text">Extracted Info</string>
+    <string name="extracted_text_placeholder">Extracted info from document...</string>
+    <string name="document_id">Document ID</string>
+    <string name="holder_name">Holder Name</string>
+    <string name="copy_id">Copy ID</string>
+    <string name="not_available">Not Available</string>
+    <string name="raw_extracted_text">Raw Extracted Text</string>
     <string name="copy_text">Copy Text</string>
     <string name="share_text">Share Text</string>
     <string name="summary">Summary</string>

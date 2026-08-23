@@ -1,6 +1,8 @@
 package com.rohan.documentsaathi.feature.summarization
 
 import android.content.ContentValues
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -125,33 +127,47 @@ class SummarizationResultFragment : Fragment() {
             textSize = 14f
             color = Color.BLACK
         }
-        val labelPaint = Paint().apply {
-            textSize = 12f
-            isFakeBoldText = true
-            color = Color.GRAY
-        }
 
         var y = 60f
-        canvas.drawText("Document Saathi - Summary", 50f, y, titlePaint)
+        canvas.drawText("Document Saathi - Export", 50f, y, titlePaint)
         y += 40f
         canvas.drawText("Type: $documentType", 50f, y, contentPaint)
         y += 30f
         canvas.drawLine(50f, y, 545f, y, contentPaint)
         y += 40f
 
-        for (field in fields) {
-            if (y > 780) { // Safety check for page end
-                break
+        // Draw Document Image if available
+        val imagePath = args.documentImagePath
+        if (imagePath.isNotEmpty()) {
+            try {
+                val bitmap = BitmapFactory.decodeFile(imagePath)
+                if (bitmap != null) {
+                    // Calculate scaling to fit image within page bounds
+                    val maxWidth = 495f // A4 width (595) - margins (50 * 2)
+                    val maxHeight = 600f // Leave space for header/footer
+                    
+                    val scale = Math.min(maxWidth / bitmap.width, maxHeight / bitmap.height)
+                    val scaledWidth = bitmap.width * scale
+                    val scaledHeight = bitmap.height * scale
+                    
+                    val x = (595f - scaledWidth) / 2f
+                    
+                    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledWidth.toInt(), scaledHeight.toInt(), true)
+                    canvas.drawBitmap(scaledBitmap, x, y, null)
+                    
+                    y += scaledHeight + 40f
+                    scaledBitmap.recycle() // Important for memory
+                }
+            } catch (e: Exception) {
+                canvas.drawText("Error loading image: ${e.message}", 50f, y, contentPaint)
             }
-            canvas.drawText(field.key.uppercase(), 50f, y, labelPaint)
-            y += 20f
-            canvas.drawText(field.value, 50f, y, contentPaint)
-            y += 35f
+        } else {
+            canvas.drawText("No image found for this document.", 50f, y, contentPaint)
         }
 
         pdfDocument.finishPage(page)
 
-        val fileName = "Summary_${System.currentTimeMillis()}.pdf"
+        val fileName = "Document_${System.currentTimeMillis()}.pdf"
         var outputStream: OutputStream? = null
         var filePath = ""
 
