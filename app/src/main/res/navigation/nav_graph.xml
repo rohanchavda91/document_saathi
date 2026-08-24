@@ -40,57 +40,11 @@
         android:name="com.rohan.documentsaathi.feature.scanner.ui.ScannerFragment"
         android:label="Scanner">
         <action
-            android:id="@+id/action_scanner_to_ocr_result"
-            app:destination="@id/ocrResultFragment">
-            <argument
-                android:name="extractedText"
-                app:argType="string" />
-        </action>
+            android:id="@+id/action_scanner_to_document_detail"
+            app:destination="@id/documentDetailFragment" />
     </fragment>
 
-    <!-- OCR Result + Summarization -->
-    <fragment
-        android:id="@+id/ocrResultFragment"
-        android:name="com.rohan.documentsaathi.feature.ocr.ui.OcrResultFragment"
-        android:label="Scan Result">
-        <argument
-            android:name="extractedText"
-            app:argType="string" />
-        <argument
-            android:name="documentImagePath"
-            android:defaultValue=""
-            app:argType="string" />
-        <action
-            android:id="@+id/action_ocr_result_to_home"
-            app:destination="@id/homeFragment"
-            app:popUpTo="@id/homeFragment"
-            app:popUpToInclusive="false" />
-        <action
-            android:id="@+id/action_ocr_result_to_summarization"
-            app:destination="@id/summarization_result_fragment"
-            app:enterAnim="@android:anim/slide_in_left"
-            app:exitAnim="@android:anim/slide_out_right" />
-    </fragment>
-
-    <!-- Summarization Result -->
-    <fragment
-        android:id="@+id/summarization_result_fragment"
-        android:name="com.rohan.documentsaathi.feature.summarization.SummarizationResultFragment"
-        android:label="Summary">
-        <argument
-            android:name="extractedText"
-            app:argType="string" />
-        <argument
-            android:name="selectedLanguage"
-            android:defaultValue="en"
-            app:argType="string" />
-        <argument
-            android:name="documentImagePath"
-            android:defaultValue=""
-            app:argType="string" />
-    </fragment>
-
-    <!-- Document Detail View (History) -->
+    <!-- Document Detail View (History & Now result of scan) -->
     <fragment
         android:id="@+id/documentDetailFragment"
         android:name="com.rohan.documentsaathi.feature.document.ui.DocumentDetailFragment"

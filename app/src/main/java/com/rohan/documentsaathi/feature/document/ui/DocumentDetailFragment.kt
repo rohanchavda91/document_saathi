@@ -9,6 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +47,7 @@ class DocumentDetailFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupEdgeToEdge()
         val documentId = args.documentId
 
 //        documents ne db mathi load kravva
@@ -96,6 +101,25 @@ class DocumentDetailFragment : Fragment(){
         // Back toolbar
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
+        }
+    }
+
+    private fun setupEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            // Apply top padding to toolbar
+            binding.toolbar.updatePadding(top = systemBars.top)
+            
+            // Adjust toolbar height to include status bar
+            binding.toolbar.updateLayoutParams {
+                height = resources.getDimensionPixelSize(R.dimen.app_bar_height) + systemBars.top
+            }
+
+            // Apply bottom padding to root container to avoid content being hidden by nav bar
+            binding.root.updatePadding(bottom = systemBars.bottom)
+            
+            insets
         }
     }
 

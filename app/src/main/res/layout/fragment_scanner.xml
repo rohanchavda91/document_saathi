@@ -17,6 +17,7 @@
 
     <!-- Top Toolbar -->
     <LinearLayout
+        android:id="@+id/topToolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_gravity="top"
@@ -68,6 +69,7 @@
 
     <!-- Bottom Action Panel -->
     <LinearLayout
+        android:id="@+id/bottomActionPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

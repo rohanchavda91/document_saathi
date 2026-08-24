@@ -17,6 +17,10 @@ import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -77,6 +81,7 @@ class ScannerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupEdgeToEdge()
         // Check permission and start camera
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -119,7 +124,7 @@ class ScannerFragment : Fragment() {
                     is ScannerUiState.OcrSuccess -> {
                         binding.fabCapture.isEnabled = true
                         binding.loadingOverlay.visibility = View.GONE
-                        navigateToOcrResult(state.extractedText)
+                        navigateToDocumentDetail(state.documentId)
                     }
                     is ScannerUiState.OcrError -> {
                         binding.fabCapture.isEnabled = true
@@ -261,20 +266,36 @@ class ScannerFragment : Fragment() {
         _binding = null
     }
 
-    private fun navigateToOcrResult(extractedText: String) {
+    private fun navigateToDocumentDetail(documentId: Long) {
         try {
-            // Safe Args auto-generates ScannerFragmentDirections based on nav_graph.xml
-            val action = ScannerFragmentDirections.actionScannerToOcrResult(
-                extractedText = extractedText
+            // Updated to navigate directly to DocumentDetailFragment
+            val action = ScannerFragmentDirections.actionScannerToDocumentDetail(
+                documentId = documentId
             )
             findNavController().navigate(action)
         } catch (e: Exception) {
-            // Fallback if Safe Args not fully set up yet
             Toast.makeText(
                 requireContext(),
                 "Navigation failed: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
+        }
+    }
+
+    private fun setupEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            // Apply top padding to toolbar
+            binding.topToolbar.updatePadding(top = systemBars.top)
+            binding.topToolbar.updateLayoutParams {
+                height = resources.getDimensionPixelSize(R.dimen.app_bar_height) + systemBars.top
+            }
+
+            // Apply bottom padding to bottom action panel
+            binding.bottomActionPanel.updatePadding(bottom = systemBars.bottom)
+            
+            insets
         }
     }
 }

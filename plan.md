@@ -7,6 +7,9 @@
     - [x] Added **Extracted Info Section** with Document ID (and copy button) and Holder Name.
     - [x] Removed dedicated Summary section as info is now integrated.
     - [x] Updated **Actions Section** with icon-only buttons and better spacing.
+- [x] **Simplified Flow**: Scanner now navigates directly to Document Detail.
+    - [x] Removed `OcrResultFragment` and intermediate steps.
+    - [x] Automatic document saving after OCR.
 
 ## Future Plan: Advanced Extraction
 - [ ] Implement robust AI-based structured data extraction (JSON parsing from DeepSeek).

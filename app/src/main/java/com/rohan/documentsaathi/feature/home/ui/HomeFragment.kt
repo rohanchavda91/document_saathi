@@ -4,6 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -38,12 +42,32 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupEdgeToEdge()
         setupRecyclerView()
         observeViewModel()
 
 //        Navigate to scanner
         binding.fabScan.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_scanner)
+        }
+    }
+
+    private fun setupEdgeToEdge() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            
+            // Apply top padding to header
+            binding.headerLayout.updatePadding(top = systemBars.top)
+            
+            // Apply bottom margin to FAB so it's above navigation bar
+            binding.fabScan.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = systemBars.bottom + resources.getDimensionPixelSize(R.dimen.spacing_xxl)
+            }
+            
+            // Apply bottom padding to RecyclerView to avoid content being hidden by nav bar
+            binding.documentsRecyclerView.updatePadding(bottom = systemBars.bottom)
+            
+            insets
         }
     }
 

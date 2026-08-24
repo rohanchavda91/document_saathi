@@ -13,11 +13,11 @@
 
         <!-- Header -->
         <LinearLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp"
-            android:fitsSystemWindows="true"
             android:background="@color/primary">
 
             <TextView
@@ -49,11 +49,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recent Scans"
-                android:textSize="18sp"
+                android:layout_marginBottom="12dp"
                 android:fontFamily="@font/poppins_bold"
+                android:text="Recent Scans"
                 android:textColor="@color/primary"
-                android:layout_marginBottom="12dp" />
+                android:textSize="18sp" />
 
         </LinearLayout>
 
