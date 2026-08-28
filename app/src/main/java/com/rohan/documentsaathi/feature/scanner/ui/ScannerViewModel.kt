@@ -3,6 +3,7 @@ package com.rohan.documentsaathi.feature.scanner.ui
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rohan.documentsaathi.core.ai.SummarizationManager
 import com.rohan.documentsaathi.data.db.entity.Document
 import com.rohan.documentsaathi.data.repository.DocumentRepository
 import com.rohan.documentsaathi.feature.ocr.manager.OcrManager
@@ -27,7 +28,8 @@ sealed class ScannerUiState{
 @HiltViewModel
 class ScannerViewModel @Inject constructor(
     private val ocrManager: OcrManager,
-    private val documentRepository: DocumentRepository
+    private val documentRepository: DocumentRepository,
+    private val summarizationManager: SummarizationManager
 ) : ViewModel(){
     private val _uiState = MutableStateFlow<ScannerUiState>(ScannerUiState.Idle)
     val uiState : StateFlow<ScannerUiState> = _uiState.asStateFlow()
@@ -44,10 +46,15 @@ class ScannerViewModel @Inject constructor(
                     ocrManager.recognizeText(bitmap)
                 }
                 
+                // Call AI to extract structured info
+                val structuredDataResult = summarizationManager.extractDocumentInfo(extractedText)
+                val structuredDataJson = structuredDataResult.getOrNull()
+                
                 // Save document to database
                 val document = Document(
                     extractedText = extractedText,
-                    detectedLanguage = "en" // Defaulting to English for now
+                    detectedLanguage = "en", // Defaulting to English for now
+                    structuredDataJson = structuredDataJson
                 )
                 val documentId = documentRepository.saveDocument(document)
                 

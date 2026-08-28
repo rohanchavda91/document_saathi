@@ -17,5 +17,6 @@ data class Document(
     val imageUri: String?=null, // location or path to the cached image
     val isSummarized: Boolean = false,
     val summary: String? = null,
-    val summaryLanguage: String?=null // Language in which the summary will be given
+    val summaryLanguage: String?=null, // Language in which the summary will be given
+    val structuredDataJson: String? = null // JSON string containing extracted fields
 )

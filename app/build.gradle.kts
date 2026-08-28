@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.builtInKotlin)
@@ -14,10 +16,20 @@ android {
         applicationId = "com.rohan.documentsaathi"
         minSdk = 26
         targetSdk = 35
+
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "NVIDIA_API_KEY", "\"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\"")
+        
+        val properties = Properties()
+        val localPropertiesFile = project.rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            val inputStream = localPropertiesFile.inputStream()
+            properties.load(inputStream)
+            inputStream.close()
+        }
+        val nvidiaKey = properties.getProperty("NVIDIA_API_KEY") ?: ""
+        buildConfigField("String", "NVIDIA_API_KEY", "\"$nvidiaKey\"")
     }
 
     buildTypes {

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,8 +19,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.rohan.documentsaathi.R
 import com.rohan.documentsaathi.databinding.FragmentDocumentDetailBinding
+import com.rohan.documentsaathi.databinding.ItemDynamicFieldBinding
 import com.rohan.documentsaathi.feature.document.ui.DocumentDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -54,20 +58,12 @@ class DocumentDetailFragment : Fragment(){
         viewLifecycleOwner.lifecycleScope.launch {
             val document = viewModel.getDocumentById(documentId)
             if (document != null) {
-                binding.tvDocumentTitle.text = "Document #$documentId"
                 binding.tvExtractedText.text = document.extractedText
                 binding.chipLanguage.text = document.detectedLanguage
                 binding.tvScannedDate.text = formatDate(document.createdAt)
 
-                // Populate ID and Name (Extracted Info)
-                val (docId, holderName) = extractIdAndName(document.extractedText, document.summary)
-                binding.tvDocumentIdValue.text = docId ?: getString(R.string.not_available)
-                binding.tvHolderNameValue.text = holderName ?: getString(R.string.not_available)
-
-                // ID Copy button
-                binding.btnCopyDocumentId.setOnClickListener {
-                    docId?.let { copyToClipboard(it) } ?: Toast.makeText(requireContext(), "ID not available", Toast.LENGTH_SHORT).show()
-                }
+                // Dynamic Field Population
+                setupDynamicFields(document.structuredDataJson, document.id)
             }
         }
 
@@ -147,21 +143,45 @@ class DocumentDetailFragment : Fragment(){
         return sdf.format(Date(timestamp))
     }
 
-    /**
-     * Simple helper to try and extract ID and Name from text.
-     * This is a temporary measure until the AI provides structured data.
-     */
-    private fun extractIdAndName(extractedText: String, summary: String?): Pair<String?, String?> {
-        val combinedText = "$extractedText\n${summary ?: ""}"
-        
-        // Very basic regex patterns for demo purposes
-        val idRegex = Regex("(?i)(id|number|no)[:.\\s]+([A-Z0-9]{4,})")
-        val nameRegex = Regex("(?i)(name|holder)[:.\\s]+([A-Z\\s]{3,})")
-        
-        val docId = idRegex.find(combinedText)?.groupValues?.get(2)
-        val holderName = nameRegex.find(combinedText)?.groupValues?.get(2)?.trim()
-        
-        return Pair(docId, holderName)
+    private fun setupDynamicFields(json: String?, documentId: Long) {
+        if (json.isNullOrEmpty()) {
+            binding.tvDocumentTitle.text = "Document #$documentId"
+            return
+        }
+
+        try {
+            val gson = Gson()
+            val type = object : TypeToken<Map<String, String>>() {}.type
+            val fields: Map<String, String> = gson.fromJson(json, type)
+
+            // Clear previous fields
+            binding.fieldsContainer.removeAllViews()
+
+            // Handle Document Title
+            val docType = fields["document_type"] ?: "Document #$documentId"
+            binding.tvDocumentTitle.text = docType
+
+            // Inflate each field
+            fields.forEach { (key, value) ->
+                if (key != "document_type" && value.isNotEmpty()) {
+                    val fieldBinding = ItemDynamicFieldBinding.inflate(
+                        LayoutInflater.from(requireContext()),
+                        binding.fieldsContainer,
+                        true
+                    )
+                    
+                    val displayLabel = key.replace("_", " ").uppercase()
+                    fieldBinding.tvLabel.text = displayLabel
+                    fieldBinding.tvValue.text = value
+                    
+                    fieldBinding.btnCopy.setOnClickListener {
+                        copyToClipboard(value)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            binding.tvDocumentTitle.text = "Document #$documentId"
+        }
     }
 
     override fun onDestroyView() {
