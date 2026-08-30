@@ -4,12 +4,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -54,16 +56,43 @@ class DocumentDetailFragment : Fragment(){
         setupEdgeToEdge()
         val documentId = args.documentId
 
-//        documents ne db mathi load kravva
-        viewLifecycleOwner.lifecycleScope.launch {
-            val document = viewModel.getDocumentById(documentId)
-            if (document != null) {
-                binding.tvExtractedText.text = document.extractedText
-                binding.chipLanguage.text = document.detectedLanguage
-                binding.tvScannedDate.text = formatDate(document.createdAt)
+        // Load document through ViewModel
+        viewModel.loadDocument(documentId)
 
-                // Dynamic Field Population
-                setupDynamicFields(document.structuredDataJson, document.id)
+        // Observe document state
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.documentState.collect { document ->
+                if (document != null) {
+                    binding.tvExtractedText.text = document.extractedText
+                    binding.chipLanguage.text = document.detectedLanguage
+                    binding.tvScannedDate.text = formatDate(document.createdAt)
+
+                    // Dynamic Field Population
+                    setupDynamicFields(document.structuredDataJson, document.id)
+
+                    // Update Summary UI
+                    if (document.summary != null) {
+                        binding.tvSummary.text = document.summary
+                        binding.summaryProgressBar.visibility = View.GONE
+                    } else {
+                        binding.tvSummary.text = "Fetching AI summary..."
+                        binding.summaryProgressBar.visibility = View.VISIBLE
+                    }
+
+                    // PDF View Button
+                    binding.btnViewPdf.setOnClickListener {
+                        document.pdfUri?.let { uri ->
+                            viewPdf(uri)
+                        } ?: Toast.makeText(requireContext(), "PDF not available", Toast.LENGTH_SHORT).show()
+                    }
+
+                    // Updated Share button for PDF
+                    binding.btnShareDocument.setOnClickListener {
+                        document.pdfUri?.let { uri ->
+                            sharePdf(uri)
+                        } ?: shareText(document.extractedText)
+                    }
+                }
             }
         }
 
@@ -74,10 +103,7 @@ class DocumentDetailFragment : Fragment(){
         }
 
 //        Share document btn
-        binding.btnShareDocument.setOnClickListener {
-            val text = binding.tvExtractedText.text.toString()
-            shareText(text)
-        }
+        // This is now handled inside lifecycleScope to access document.pdfUri
 
         binding.btnRescan.setOnClickListener {
             Toast.makeText(requireContext(), "Rescan feature coming soon", Toast.LENGTH_SHORT).show()
@@ -89,9 +115,7 @@ class DocumentDetailFragment : Fragment(){
 
 //        Delete nu btn
         binding.btnDelete.setOnClickListener {
-            viewModel.deleteDocument(documentId)
-            Toast.makeText(requireContext(), "Document deleted", Toast.LENGTH_SHORT).show()
-            findNavController().navigateUp()
+            showDeleteConfirmation(documentId)
         }
 
         // Back toolbar
@@ -119,6 +143,19 @@ class DocumentDetailFragment : Fragment(){
         }
     }
 
+    private fun showDeleteConfirmation(documentId: Long) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Document?")
+            .setMessage("Are you sure you want to delete this document? This action cannot be undone.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteDocument(documentId)
+                Toast.makeText(requireContext(), "Document deleted", Toast.LENGTH_SHORT).show()
+                findNavController().navigateUp()
+            }
+            .show()
+    }
+
 //    Clipboard ma copy krvanu function
     private fun copyToClipboard(text: String){
         val clipboard=requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -137,6 +174,51 @@ class DocumentDetailFragment : Fragment(){
         startActivity(Intent.createChooser(shareIntent, "Share document"))
     }
 
+    private fun sharePdf(pdfPath: String) {
+        val file = java.io.File(pdfPath)
+        if (!file.exists()) {
+            Toast.makeText(requireContext(), "File error", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            file
+        )
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(intent, "Share PDF Document"))
+    }
+
+    private fun viewPdf(pdfPath: String) {
+        val file = java.io.File(pdfPath)
+        if (!file.exists()) {
+            Toast.makeText(requireContext(), "File not found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            file
+        )
+
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/pdf")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "No PDF viewer found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 //    Date ne format krvu
     private fun formatDate(timestamp: Long): String{
         val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
@@ -144,8 +226,18 @@ class DocumentDetailFragment : Fragment(){
     }
 
     private fun setupDynamicFields(json: String?, documentId: Long) {
+        android.util.Log.d("DocumentDetail", "Setting up dynamic fields for Doc: $documentId. JSON: $json")
+        
         if (json.isNullOrEmpty()) {
             binding.tvDocumentTitle.text = "Document #$documentId"
+            binding.fieldsContainer.removeAllViews()
+            val loadingView = TextView(requireContext()).apply {
+                text = "Extracting document details..."
+                setPadding(0, 16, 0, 16)
+                alpha = 0.7f
+                typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.poppins_medium)
+            }
+            binding.fieldsContainer.addView(loadingView)
             return
         }
 

@@ -17,7 +17,7 @@
 - **UI:** Jetpack Navigation, Material Design 3
 - **Camera:** CameraX
 - **OCR:** ML Kit Text Recognition
-- **AI:** NVIDIA DeepSeek API (`deepseek-v4-pro`)
+- **AI:** NVIDIA API (`google/diffusiongemma-26b-a4b-it`)
 - **Database:** Room DB
 - **Async:** Kotlin Coroutines + StateFlow
 
@@ -60,14 +60,14 @@ com.rohan.documentsaathi/
 - **Type Safety:** Kotlin's null-safety + data classes
 
 ## API Integration
-Uses NVIDIA's OpenAI-compatible DeepSeek endpoint:
-- Model: `deepseek-v4-pro`
-- Timeout: 30s connect, 30s write, 60s read
-- Supports streaming + structured JSON output
+Uses NVIDIA's OpenAI-compatible endpoint:
+- Model: `google/diffusiongemma-26b-a4b-it`
+- Timeout: 60s connect, 60s write, 90s read
+- Supports structured JSON output
 
 ## Known Scope Decisions
 - **Gujarati OCR:** Not supported by ML Kit; available as summarization output language only
-- **Document Types:** Auto-detected via DeepSeek (Aadhaar, PAN, Passport, DL, Voter ID, etc.)
+- **Document Types:** Auto-detected via AI (Aadhaar, PAN, Passport, DL, Voter ID, etc.)
 - **PDF Export:** Currently scaffolded (MediaStore integration in progress)
 
 ## For Viva / Submission

@@ -50,6 +50,7 @@
     <string name="copy_id">Copy ID</string>
     <string name="not_available">Not Available</string>
     <string name="raw_extracted_text">Raw Extracted Text</string>
+    <string name="view_pdf">View PDF</string>
     <string name="copy_text">Copy Text</string>
     <string name="share_text">Share Text</string>
     <string name="summary">Summary</string>

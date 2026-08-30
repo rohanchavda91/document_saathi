@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rohan.documentsaathi.core.ai.SummarizationManager
+import com.rohan.documentsaathi.core.utils.ImageManager
+import com.rohan.documentsaathi.core.utils.PdfManager
 import com.rohan.documentsaathi.data.db.entity.Document
 import com.rohan.documentsaathi.data.repository.DocumentRepository
 import com.rohan.documentsaathi.feature.ocr.manager.OcrManager
@@ -29,7 +31,9 @@ sealed class ScannerUiState{
 class ScannerViewModel @Inject constructor(
     private val ocrManager: OcrManager,
     private val documentRepository: DocumentRepository,
-    private val summarizationManager: SummarizationManager
+    private val summarizationManager: SummarizationManager,
+    private val pdfManager: PdfManager,
+    private val imageManager: ImageManager
 ) : ViewModel(){
     private val _uiState = MutableStateFlow<ScannerUiState>(ScannerUiState.Idle)
     val uiState : StateFlow<ScannerUiState> = _uiState.asStateFlow()
@@ -46,15 +50,23 @@ class ScannerViewModel @Inject constructor(
                     ocrManager.recognizeText(bitmap)
                 }
                 
-                // Call AI to extract structured info
-                val structuredDataResult = summarizationManager.extractDocumentInfo(extractedText)
-                val structuredDataJson = structuredDataResult.getOrNull()
+                // Generate PDF from captured photo
+                val pdfUri = withContext(Dispatchers.IO) {
+                    pdfManager.generatePdfFromBitmap(bitmap)
+                }
+
+                // Save image locally for later AI processing
+                val imagePath = withContext(Dispatchers.IO) {
+                    imageManager.saveBitmap(bitmap)
+                }
                 
-                // Save document to database
+                // Save document to database early
                 val document = Document(
                     extractedText = extractedText,
-                    detectedLanguage = "en", // Defaulting to English for now
-                    structuredDataJson = structuredDataJson
+                    detectedLanguage = "en",
+                    imageUri = imagePath,
+                    structuredDataJson = null, // Will be fetched in detail screen
+                    pdfUri = pdfUri
                 )
                 val documentId = documentRepository.saveDocument(document)
                 

@@ -68,43 +68,44 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_document" />
 
-        <!-- Empty State -->
-        <LinearLayout
-            android:id="@+id/emptyStateLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:visibility="gone"
-            tools:visibility="visible">
+    </LinearLayout>
 
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_launcher_foreground"
-                android:contentDescription="Empty State"
-                android:layout_marginBottom="16dp"
-                app:tint="@color/primary"
-                android:alpha="0.5" />
+    <!-- Empty State (Centered in FrameLayout) -->
+    <LinearLayout
+        android:id="@+id/emptyStateLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        tools:visibility="visible">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="No documents scanned yet"
-                android:textSize="16sp"
-                android:fontFamily="@font/poppins_medium"
-                android:textColor="#757575"
-                android:layout_marginBottom="8dp" />
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="16dp"
+            android:alpha="0.5"
+            android:contentDescription="Empty State"
+            android:src="@drawable/ic_launcher_foreground"
+            app:tint="@color/primary" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start by scanning a new document"
-                android:textSize="14sp"
-                android:fontFamily="@font/poppins_regular"
-                android:textColor="#BDBDBD" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="No documents scanned yet"
+            android:textColor="#757575"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
 
-        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:text="Start by scanning a new document"
+            android:textColor="#BDBDBD"
+            android:textSize="14sp" />
 
     </LinearLayout>
 
@@ -114,8 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:visibility="gone" />
 
     <!-- Floating Action Button - Scan New Document -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

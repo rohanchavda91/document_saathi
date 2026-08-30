@@ -8,7 +8,7 @@ import com.rohan.documentsaathi.data.db.entity.Document
 
 @Database(
     entities = [Document::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 
