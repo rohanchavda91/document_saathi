@@ -49,6 +49,7 @@ class SummarizationManager @Inject constructor() {
                 - "holder_name": (Name of person)
                 - "dob": (Date of Birth if found)
                 - "address": (Full address if found)
+                - any other related fields to relavant document type
                 
                 Return ONLY the JSON. No other text.
             """.trimIndent()
