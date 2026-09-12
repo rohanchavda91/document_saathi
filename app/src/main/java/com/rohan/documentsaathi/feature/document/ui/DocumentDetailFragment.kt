@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -21,14 +22,18 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rohan.documentsaathi.R
+import com.rohan.documentsaathi.data.db.entity.Document
+import com.rohan.documentsaathi.databinding.DialogShareBottomSheetBinding
 import com.rohan.documentsaathi.databinding.FragmentDocumentDetailBinding
 import com.rohan.documentsaathi.databinding.ItemDynamicFieldBinding
 import com.rohan.documentsaathi.feature.document.ui.DocumentDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -81,16 +86,20 @@ class DocumentDetailFragment : Fragment(){
 
                     // PDF View Button
                     binding.btnViewPdf.setOnClickListener {
-                        document.pdfUri?.let { uri ->
-                            viewPdf(uri)
-                        } ?: Toast.makeText(requireContext(), "PDF not available", Toast.LENGTH_SHORT).show()
+                        lifecycleScope.launch {
+                            Toast.makeText(requireContext(), "Opening PDF...", Toast.LENGTH_SHORT).show()
+                            val pdfFile = viewModel.getOrGeneratePdfFile(document)
+                            if (pdfFile != null && pdfFile.exists()) {
+                                viewPdf(pdfFile.absolutePath)
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to generate PDF", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
 
-                    // Updated Share button for PDF
+                    // Custom Share button for PDF / JPG
                     binding.btnShareDocument.setOnClickListener {
-                        document.pdfUri?.let { uri ->
-                            sharePdf(uri)
-                        } ?: shareText(document.extractedText)
+                        showShareBottomSheet(document)
                     }
                 }
             }
@@ -174,13 +183,50 @@ class DocumentDetailFragment : Fragment(){
         startActivity(Intent.createChooser(shareIntent, "Share document"))
     }
 
-    private fun sharePdf(pdfPath: String) {
-        val file = java.io.File(pdfPath)
-        if (!file.exists()) {
-            Toast.makeText(requireContext(), "File error", Toast.LENGTH_SHORT).show()
-            return
+    private fun showShareBottomSheet(document: Document) {
+        val dialog = BottomSheetDialog(requireContext())
+        val dialogBinding = DialogShareBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        val defaultName = binding.tvDocumentTitle.text.toString().ifEmpty { "Document_${document.id}" }
+        dialogBinding.etFileName.setText(defaultName)
+
+        val sizeInBytes = document.imageUri?.let { File(it).length() }
+            ?: document.pdfUri?.let { File(it).length() } ?: 0L
+        val sizeInMb = String.format(Locale.US, "%.2f MB", sizeInBytes / (1024.0 * 1024.0))
+        dialogBinding.tvFileInfo.text = "1 File | $sizeInMb"
+
+        dialogBinding.btnEditName.setOnClickListener {
+            dialogBinding.etFileName.requestFocus()
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(dialogBinding.etFileName, InputMethodManager.SHOW_IMPLICIT)
         }
 
+        dialogBinding.btnCancelShare.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnConfirmShare.setOnClickListener {
+            val customName = dialogBinding.etFileName.text.toString().trim().ifEmpty { defaultName }
+            val isPdfSelected = dialogBinding.toggleFormat.checkedButtonId == R.id.btn_format_pdf
+
+            dialog.dismiss()
+
+            lifecycleScope.launch {
+                Toast.makeText(requireContext(), "Preparing file...", Toast.LENGTH_SHORT).show()
+                val fileToShare = viewModel.prepareShareFile(document, customName, isPdfSelected)
+                if (fileToShare != null && fileToShare.exists()) {
+                    shareFile(fileToShare, if (isPdfSelected) "application/pdf" else "image/jpeg")
+                } else {
+                    Toast.makeText(requireContext(), "Failed to prepare file for sharing", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun shareFile(file: File, mimeType: String) {
         val uri = FileProvider.getUriForFile(
             requireContext(),
             "${requireContext().packageName}.fileprovider",
@@ -188,15 +234,16 @@ class DocumentDetailFragment : Fragment(){
         )
 
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/pdf"
+            type = mimeType
             putExtra(Intent.EXTRA_STREAM, uri)
+            clipData = ClipData.newRawUri("", uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        startActivity(Intent.createChooser(intent, "Share PDF Document"))
+        startActivity(Intent.createChooser(intent, "Share Document"))
     }
 
     private fun viewPdf(pdfPath: String) {
-        val file = java.io.File(pdfPath)
+        val file = File(pdfPath)
         if (!file.exists()) {
             Toast.makeText(requireContext(), "File not found", Toast.LENGTH_SHORT).show()
             return
@@ -210,12 +257,24 @@ class DocumentDetailFragment : Fragment(){
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/pdf")
+            clipData = ClipData.newRawUri("", uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         try {
             startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "No PDF viewer found", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                val docName = binding.tvDocumentTitle.text.toString()
+                val currentDoc = viewModel.documentState.value
+                if (currentDoc != null) {
+                    val success = viewModel.exportPdfToDownloads(currentDoc, docName)
+                    if (success) {
+                        Toast.makeText(requireContext(), "No PDF viewer found. PDF exported to Downloads!", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(requireContext(), "No PDF viewer found on device", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
