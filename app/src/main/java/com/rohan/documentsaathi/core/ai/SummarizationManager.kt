@@ -32,26 +32,27 @@ class SummarizationManager @Inject constructor() {
 
     suspend fun extractDocumentInfo(bitmap: Bitmap, ocrText: String): Result<String> = withContext(Dispatchers.IO) {
         try {
-            Log.d(TAG, "Extracting structured data using PaliGemma (VLM)")
+            Log.d(TAG, "Extracting structured data using fast AI extraction")
             
-            // Convert bitmap to Base64
-            val base64Image = encodeImageToBase64(bitmap)
+            // Downscale bitmap to max 800px to keep payload size tiny (~80KB) for ultra-fast API response
+            val downscaled = downscaleBitmap(bitmap, 800)
+            val base64Image = encodeImageToBase64(downscaled)
             
             val prompt = """
-                Task: You are an expert document analyzer. 
-                Identify the document type (Aadhar, PAN, License, etc.) and extract all details.
+                Task: Analyze the document OCR text and image.
+                Identify the document type (e.g. PAN Card, Aadhar Card, Driving License, Passport, Credit/Debit Card, Resume, Marksheet, Invoice/Receipt, Document).
                 
-                Input OCR Text for reference: $ocrText
+                OCR Text:
+                $ocrText
                 
-                Return a JSON object with:
-                - "document_type": (e.g. Aadhar Card, PAN Card, Driving License)
-                - "id_number": (The main ID number)
-                - "holder_name": (Name of person)
-                - "dob": (Date of Birth if found)
-                - "address": (Full address if found)
-                - any other related fields to relevant document type
-                
-                Return ONLY the JSON. No other text.
+                Rules for JSON Output:
+                1. Always include key "document_type" with a clean name (e.g., "PAN Card", "Aadhar Card", "Driving License", "Debit Card", "Resume", "Receipt").
+                2. For PAN Card: include "pan_number", "holder_name", "father_name", "dob".
+                3. For Aadhar Card: include "aadhar_number", "holder_name", "dob", "gender", "address".
+                4. For Driving License: include "dl_number", "holder_name", "dob", "validity", "address".
+                5. For Cards: include "card_number", "card_holder", "expiry_date".
+                6. For other documents: include "title", "name", "id_number", "date", "additional_info".
+                7. Output ONLY a valid JSON object. Do NOT include markdown code blocks or introductory text.
             """.trimIndent()
 
             val requestBody = mapOf(
@@ -97,12 +98,40 @@ class SummarizationManager @Inject constructor() {
                 val extraction = apiResponse.choices?.getOrNull(0)?.message?.content
                     ?: return@withContext Result.failure(Exception("Parse error"))
                 
-                val cleaned = extraction.trim().removePrefix("```json").removeSuffix("```").trim()
-                Result.success(cleaned)
+                val cleanedJson = sanitizeJson(extraction)
+                Result.success(cleanedJson)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error in VLM extraction", e)
             Result.failure(e)
+        }
+    }
+
+    private fun downscaleBitmap(bitmap: Bitmap, maxDimension: Int): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+        if (width <= maxDimension && height <= maxDimension) return bitmap
+
+        val aspectRatio = width.toFloat() / height.toFloat()
+        val (newWidth, newHeight) = if (width > height) {
+            maxDimension to (maxDimension / aspectRatio).toInt()
+        } else {
+            (maxDimension * aspectRatio).toInt() to maxDimension
+        }
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true)
+    }
+
+    private fun sanitizeJson(input: String): String {
+        var text = input.trim()
+        if (text.startsWith("```")) {
+            text = text.replace("^```[a-zA-Z]*".toRegex(), "").removeSuffix("```").trim()
+        }
+        val firstBrace = text.indexOf('{')
+        val lastBrace = text.lastIndexOf('}')
+        return if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+            text.substring(firstBrace, lastBrace + 1).trim()
+        } else {
+            text
         }
     }
 

@@ -1,11 +1,16 @@
 package com.rohan.documentsaathi.feature.document.ui
 
+import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
@@ -27,6 +32,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.rohan.documentsaathi.R
 import com.rohan.documentsaathi.data.db.entity.Document
+import com.rohan.documentsaathi.databinding.DialogPdfViewerBinding
 import com.rohan.documentsaathi.databinding.DialogShareBottomSheetBinding
 import com.rohan.documentsaathi.databinding.FragmentDocumentDetailBinding
 import com.rohan.documentsaathi.databinding.ItemDynamicFieldBinding
@@ -97,6 +103,20 @@ class DocumentDetailFragment : Fragment(){
                         }
                     }
 
+                    // PDF Download Button
+                    binding.btnDownloadPdf.setOnClickListener {
+                        lifecycleScope.launch {
+                            Toast.makeText(requireContext(), "Downloading PDF...", Toast.LENGTH_SHORT).show()
+                            val docTitle = binding.tvDocumentTitle.text.toString()
+                            val success = viewModel.exportPdfToDownloads(document, docTitle)
+                            if (success) {
+                                Toast.makeText(requireContext(), "PDF saved to Downloads folder!", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to save PDF", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
                     // Custom Share button for PDF / JPG
                     binding.btnShareDocument.setOnClickListener {
                         showShareBottomSheet(document)
@@ -115,7 +135,7 @@ class DocumentDetailFragment : Fragment(){
         // This is now handled inside lifecycleScope to access document.pdfUri
 
         binding.btnRescan.setOnClickListener {
-            Toast.makeText(requireContext(), "Rescan feature coming soon", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_documentDetail_to_scanner)
         }
 
         binding.btnBookmark.setOnClickListener {
@@ -184,8 +204,11 @@ class DocumentDetailFragment : Fragment(){
     }
 
     private fun showShareBottomSheet(document: Document) {
-        val dialog = BottomSheetDialog(requireContext())
-        val dialogBinding = DialogShareBottomSheetBinding.inflate(layoutInflater)
+        val themedContext = ContextThemeWrapper(requireContext(), R.style.Theme_DocumentSaathi)
+        val dialog = BottomSheetDialog(themedContext)
+        val dialogBinding = DialogShareBottomSheetBinding.inflate(
+            LayoutInflater.from(themedContext)
+        )
         dialog.setContentView(dialogBinding.root)
 
         val defaultName = binding.tvDocumentTitle.text.toString().ifEmpty { "Document_${document.id}" }
@@ -260,22 +283,69 @@ class DocumentDetailFragment : Fragment(){
             clipData = ClipData.newRawUri("", uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+
+        val chooser = Intent.createChooser(intent, "Open PDF with")
         try {
-            startActivity(intent)
+            startActivity(chooser)
         } catch (e: Exception) {
+            showInAppPdfViewer(file)
+        }
+    }
+
+    private fun showInAppPdfViewer(file: File) {
+        val themedContext = ContextThemeWrapper(requireContext(), R.style.Theme_DocumentSaathi)
+        val dialog = Dialog(themedContext, android.R.style.Theme_Light_NoTitleBar_Fullscreen)
+        val dialogBinding = DialogPdfViewerBinding.inflate(
+            LayoutInflater.from(themedContext)
+        )
+        dialog.setContentView(dialogBinding.root)
+
+        val docName = binding.tvDocumentTitle.text.toString()
+        dialogBinding.tvPdfTitle.text = docName
+
+        try {
+            val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+            val pdfRenderer = PdfRenderer(fileDescriptor)
+            if (pdfRenderer.pageCount > 0) {
+                val page = pdfRenderer.openPage(0)
+                val bitmap = Bitmap.createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                dialogBinding.ivPdfPage.setImageBitmap(bitmap)
+                page.close()
+            }
+            pdfRenderer.close()
+            fileDescriptor.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Failed to render PDF preview", Toast.LENGTH_SHORT).show()
+        }
+
+        dialogBinding.btnClosePdf.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnSharePdfInViewer.setOnClickListener {
+            val currentDoc = viewModel.documentState.value
+            if (currentDoc != null) {
+                showShareBottomSheet(currentDoc)
+            }
+        }
+
+        dialogBinding.btnDownloadPdfInViewer.setOnClickListener {
             lifecycleScope.launch {
-                val docName = binding.tvDocumentTitle.text.toString()
                 val currentDoc = viewModel.documentState.value
                 if (currentDoc != null) {
                     val success = viewModel.exportPdfToDownloads(currentDoc, docName)
                     if (success) {
-                        Toast.makeText(requireContext(), "No PDF viewer found. PDF exported to Downloads!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), "PDF saved to Downloads folder!", Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(requireContext(), "No PDF viewer found on device", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Failed to save PDF", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         }
+
+        dialog.show()
     }
 
 //    Date ne format krvu

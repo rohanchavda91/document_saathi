@@ -52,6 +52,9 @@
         <argument
             android:name="documentId"
             app:argType="long" />
+        <action
+            android:id="@+id/action_documentDetail_to_scanner"
+            app:destination="@id/scannerFragment" />
     </fragment>
 
 </navigation>

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,12 +31,29 @@ class HomeViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    val documents: StateFlow<List<Document>> = documentRepository.getAllDocuments()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = emptyList()
-        )
+    val documents: StateFlow<List<Document>> = combine(
+        documentRepository.getAllDocuments(),
+        _searchQuery
+    ) { docs, query ->
+        if (query.isBlank()) {
+            docs
+        } else {
+            val q = query.trim().lowercase()
+            docs.filter { doc ->
+                val textMatch = doc.extractedText.lowercase().contains(q)
+                val jsonMatch = doc.structuredDataJson?.lowercase()?.contains(q) == true
+                textMatch || jsonMatch
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = emptyList()
+    )
+
+    fun setSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
 
     // Document count flow
     val documentCount: StateFlow<Int> = documentRepository.getDocumentCount()
