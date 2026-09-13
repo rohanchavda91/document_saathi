@@ -3,7 +3,6 @@ package com.rohan.documentsaathi.core.utils
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.os.Build
@@ -14,10 +13,11 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.min
 
 @Singleton
 class PdfManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
 ) {
     /**
      * Converts a bitmap into an A4 PDF and saves it to internal storage.
@@ -35,7 +35,7 @@ class PdfManager @Inject constructor(
         val maxWidth = 595f - 40f // Margin of 20 on each side
         val maxHeight = 842f - 40f
         
-        val scale = Math.min(maxWidth / bitmap.width, maxHeight / bitmap.height)
+        val scale = min(maxWidth / bitmap.width, maxHeight / bitmap.height)
         val scaledWidth = bitmap.width * scale
         val scaledHeight = bitmap.height * scale
         
@@ -61,7 +61,7 @@ class PdfManager @Inject constructor(
             outputStream.close()
             pdfDocument.close()
             file.absolutePath
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             pdfDocument.close()
             null
         }
@@ -82,7 +82,7 @@ class PdfManager @Inject constructor(
         return try {
             sourceFile.copyTo(targetFile, overwrite = true)
             targetFile
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

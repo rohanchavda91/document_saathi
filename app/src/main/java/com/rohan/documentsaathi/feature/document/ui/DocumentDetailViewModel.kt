@@ -22,7 +22,7 @@ class DocumentDetailViewModel @Inject constructor(
     private val documentRepository: DocumentRepository,
     private val summarizationManager: SummarizationManager,
     private val imageManager: ImageManager,
-    private val pdfManager: PdfManager
+    private val pdfManager: PdfManager,
 ): ViewModel(){
 
     private val _documentState = MutableStateFlow<Document?>(null)
@@ -114,8 +114,8 @@ class DocumentDetailViewModel @Inject constructor(
     fun deleteDocument(documentId: Long){
         viewModelScope.launch {
             val document = documentRepository.getDocumentById(documentId)
-            if (document!=null){
-                documentRepository.deleteDocument(document)
+            document?.let {
+                documentRepository.deleteDocument(it)
             }
         }
     }

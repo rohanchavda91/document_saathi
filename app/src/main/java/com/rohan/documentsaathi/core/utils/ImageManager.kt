@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ImageManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
 ) {
     fun saveBitmap(bitmap: Bitmap): String? {
         val directory = File(context.filesDir, "images")
@@ -27,7 +27,7 @@ class ImageManager @Inject constructor(
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
             outputStream.close()
             file.absolutePath
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -35,7 +35,7 @@ class ImageManager @Inject constructor(
     fun loadBitmap(path: String): Bitmap? {
         return try {
             BitmapFactory.decodeFile(path)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

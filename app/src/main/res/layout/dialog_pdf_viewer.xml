@@ -21,7 +21,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Close Viewer"
+            android:contentDescription="@string/close_viewer"
             android:src="@drawable/ic_arrow_back"
             app:tint="@color/text_primary" />
 
@@ -42,7 +42,7 @@
             android:layout_height="36dp"
             android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Share PDF"
+            android:contentDescription="@string/share"
             android:src="@drawable/ic_share"
             app:tint="@color/primary" />
 
@@ -51,7 +51,7 @@
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Download PDF"
+            android:contentDescription="@string/download_pdf"
             android:src="@drawable/ic_download"
             app:tint="@color/primary" />
 
@@ -80,7 +80,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
-                    android:contentDescription="PDF Page Preview"
+                    android:contentDescription="@string/pdf_page_preview"
                     android:scaleType="fitCenter" />
 
             </ScrollView>

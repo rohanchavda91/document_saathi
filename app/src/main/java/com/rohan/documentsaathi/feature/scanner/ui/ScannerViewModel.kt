@@ -3,7 +3,6 @@ package com.rohan.documentsaathi.feature.scanner.ui
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rohan.documentsaathi.core.ai.SummarizationManager
 import com.rohan.documentsaathi.core.utils.ImageManager
 import com.rohan.documentsaathi.core.utils.PdfManager
 import com.rohan.documentsaathi.data.db.entity.Document
@@ -31,9 +30,8 @@ sealed class ScannerUiState{
 class ScannerViewModel @Inject constructor(
     private val ocrManager: OcrManager,
     private val documentRepository: DocumentRepository,
-    private val summarizationManager: SummarizationManager,
     private val pdfManager: PdfManager,
-    private val imageManager: ImageManager
+    private val imageManager: ImageManager,
 ) : ViewModel(){
     private val _uiState = MutableStateFlow<ScannerUiState>(ScannerUiState.Idle)
     val uiState : StateFlow<ScannerUiState> = _uiState.asStateFlow()

@@ -35,7 +35,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center"
-                android:contentDescription="Share Icon"
+                android:contentDescription="@string/share_icon"
                 android:src="@drawable/ic_share"
                 app:tint="@color/primary" />
         </FrameLayout>
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:fontFamily="@font/poppins_bold"
-                    android:hint="Document Title"
+                    android:hint="@string/document_title_placeholder"
                     android:imeOptions="actionDone"
                     android:inputType="text"
                     android:maxLines="1"
@@ -75,7 +75,7 @@
                     android:layout_height="28dp"
                     android:layout_marginStart="6dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Edit Name"
+                    android:contentDescription="@string/edit_name"
                     android:padding="4dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_edit"
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/poppins_medium"
-            android:text="Share as"
+            android:text="@string/share_as"
             android:textColor="@color/text_primary"
             android:textSize="15sp" />
 
@@ -133,7 +133,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_bold"
-                android:text="PDF"
+                android:text="@string/format_pdf"
                 android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
@@ -142,7 +142,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_bold"
-                android:text="IMAGE (JPG)"
+                android:text="@string/format_jpg"
                 android:textSize="13sp" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
@@ -170,7 +170,7 @@
             android:layout_marginEnd="12dp"
             android:fontFamily="@font/poppins_bold"
             android:paddingHorizontal="20dp"
-            android:text="CANCEL"
+            android:text="@string/cancel"
             android:textColor="@color/text_secondary"
             app:strokeColor="#CCCCCC" />
 
@@ -181,7 +181,7 @@
             android:backgroundTint="@color/primary_dark"
             android:fontFamily="@font/poppins_bold"
             android:paddingHorizontal="24dp"
-            android:text="SHARE"
+            android:text="@string/share"
             android:textColor="@color/white" />
 
     </LinearLayout>

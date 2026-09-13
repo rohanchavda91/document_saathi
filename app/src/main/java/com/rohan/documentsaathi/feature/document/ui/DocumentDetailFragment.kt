@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
-import android.net.Uri
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.view.ContextThemeWrapper
@@ -18,6 +17,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.core.graphics.createBitmap
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -36,7 +36,6 @@ import com.rohan.documentsaathi.databinding.DialogPdfViewerBinding
 import com.rohan.documentsaathi.databinding.DialogShareBottomSheetBinding
 import com.rohan.documentsaathi.databinding.FragmentDocumentDetailBinding
 import com.rohan.documentsaathi.databinding.ItemDynamicFieldBinding
-import com.rohan.documentsaathi.feature.document.ui.DocumentDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
@@ -86,7 +85,7 @@ class DocumentDetailFragment : Fragment(){
                         binding.tvSummary.text = document.summary
                         binding.summaryProgressBar.visibility = View.GONE
                     } else {
-                        binding.tvSummary.text = "Fetching AI summary..."
+                        binding.tvSummary.text = getString(R.string.fetching_ai_summary)
                         binding.summaryProgressBar.visibility = View.VISIBLE
                     }
 
@@ -193,16 +192,6 @@ class DocumentDetailFragment : Fragment(){
         Toast.makeText(requireContext(), "Text copied to clipboard", Toast.LENGTH_SHORT).show()
     }
 
-//    Text ne share krva nu function
-    private fun shareText(text:String){
-        val shareIntent = Intent().apply{
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
-            type="text/plain"
-        }
-        startActivity(Intent.createChooser(shareIntent, "Share document"))
-    }
-
     private fun showShareBottomSheet(document: Document) {
         val themedContext = ContextThemeWrapper(requireContext(), R.style.Theme_DocumentSaathi)
         val dialog = BottomSheetDialog(themedContext)
@@ -217,7 +206,7 @@ class DocumentDetailFragment : Fragment(){
         val sizeInBytes = document.imageUri?.let { File(it).length() }
             ?: document.pdfUri?.let { File(it).length() } ?: 0L
         val sizeInMb = String.format(Locale.US, "%.2f MB", sizeInBytes / (1024.0 * 1024.0))
-        dialogBinding.tvFileInfo.text = "1 File | $sizeInMb"
+        dialogBinding.tvFileInfo.text = getString(R.string.file_count_format, 1, sizeInMb)
 
         dialogBinding.btnEditName.setOnClickListener {
             dialogBinding.etFileName.requestFocus()
@@ -287,7 +276,7 @@ class DocumentDetailFragment : Fragment(){
         val chooser = Intent.createChooser(intent, "Open PDF with")
         try {
             startActivity(chooser)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             showInAppPdfViewer(file)
         }
     }
@@ -308,15 +297,14 @@ class DocumentDetailFragment : Fragment(){
             val pdfRenderer = PdfRenderer(fileDescriptor)
             if (pdfRenderer.pageCount > 0) {
                 val page = pdfRenderer.openPage(0)
-                val bitmap = Bitmap.createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)
+                val bitmap = createBitmap(page.width * 2, page.height * 2, Bitmap.Config.ARGB_8888)
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 dialogBinding.ivPdfPage.setImageBitmap(bitmap)
                 page.close()
             }
             pdfRenderer.close()
             fileDescriptor.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (_: Exception) {
             Toast.makeText(requireContext(), "Failed to render PDF preview", Toast.LENGTH_SHORT).show()
         }
 

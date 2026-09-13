@@ -85,7 +85,7 @@ class SummarizationManager @Inject constructor() {
 
             client.newCall(request).execute().use { response ->
                 val responseBody = response.body?.string()
-                Log.d(TAG, "VLM API Response: ${responseBody}")
+                Log.d(TAG, "VLM API Response: $responseBody")
                 
                 if (!response.isSuccessful) {
                     Log.e(TAG, "PaliGemma API Error: ${response.code} - $responseBody")
@@ -186,7 +186,7 @@ class SummarizationManager @Inject constructor() {
 
             client.newCall(request).execute().use { response ->
                 val responseBody = response.body?.string()
-                Log.d(TAG, "Full API Response: ${responseBody}")
+                Log.d(TAG, "Full API Response: $responseBody")
                 
                 if (!response.isSuccessful) {
                     Log.e(TAG, "PaliGemma API Error: ${response.code} - $responseBody")
