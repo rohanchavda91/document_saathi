@@ -38,9 +38,23 @@
 
     <!-- Loading Indicator (Material 3) -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progressIndicator"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:indeterminate="true"
         app:indicatorColor="@color/primary" />
+
+    <!-- Unlock Button (shown if prompt is dismissed/canceled) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUnlock"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/poppins_bold"
+        android:text="@string/unlock_app"
+        android:visibility="gone"
+        app:icon="@drawable/ic_lock"
+        app:iconTint="@color/primary" />
 
 </LinearLayout>

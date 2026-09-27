@@ -4,6 +4,10 @@
 
     <!-- Splash Fragment -->
     <string name="tagline">Scan → Read → Understand</string>
+    <string name="unlock_app_title">Unlock Document Saathi</string>
+    <string name="unlock_app_subtitle">Use your biometric or screen lock PIN/Pattern/Password to access your documents</string>
+    <string name="unlock_app">Unlock App</string>
+    <string name="authentication_failed">Authentication Failed</string>
 
     <!-- Home Fragment -->
     <string name="recent_scans">Recent Scans</string>

@@ -203,10 +203,26 @@ class DocumentDetailFragment : Fragment(){
         val defaultName = binding.tvDocumentTitle.text.toString().ifEmpty { "Document_${document.id}" }
         dialogBinding.etFileName.setText(defaultName)
 
-        val sizeInBytes = document.imageUri?.let { File(it).length() }
-            ?: document.pdfUri?.let { File(it).length() } ?: 0L
-        val sizeInMb = String.format(Locale.US, "%.2f MB", sizeInBytes / (1024.0 * 1024.0))
-        dialogBinding.tvFileInfo.text = getString(R.string.file_count_format, 1, sizeInMb)
+        fun updateSizeDisplay(isPdf: Boolean) {
+            val fileLength = if (isPdf) {
+                document.pdfUri?.let { File(it).length() }
+                    ?: document.imageUri?.let { File(it).length() } ?: 0L
+            } else {
+                document.imageUri?.let { File(it).length() }
+                    ?: document.pdfUri?.let { File(it).length() } ?: 0L
+            }
+            val sizeInMb = String.format(Locale.US, "%.2f MB", fileLength / (1024.0 * 1024.0))
+            dialogBinding.tvFileInfo.text = getString(R.string.file_count_format, 1, sizeInMb)
+        }
+
+        // Initial size update
+        updateSizeDisplay(dialogBinding.toggleFormat.checkedButtonId == R.id.btn_format_pdf)
+
+        dialogBinding.toggleFormat.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                updateSizeDisplay(checkedId == R.id.btn_format_pdf)
+            }
+        }
 
         dialogBinding.btnEditName.setOnClickListener {
             dialogBinding.etFileName.requestFocus()
@@ -248,10 +264,15 @@ class DocumentDetailFragment : Fragment(){
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = mimeType
             putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, file.name)
             clipData = ClipData.newRawUri("", uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        startActivity(Intent.createChooser(intent, "Share Document"))
+
+        val chooser = Intent.createChooser(intent, "Share Document").apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(chooser)
     }
 
     private fun viewPdf(pdfPath: String) {

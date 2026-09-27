@@ -76,7 +76,7 @@ class PdfManager @Inject constructor(
         if (!sharesDir.exists()) {
             sharesDir.mkdirs()
         }
-        val safeName = customFileName.replace("[^a-zA-Z0-9_\\-]".toRegex(), "_").ifEmpty { "document" }
+        val safeName = customFileName.replace("[/\\\\:*?\"<>|]".toRegex(), "_").trim().ifEmpty { "document" }
         val ext = if (extension.startsWith(".")) extension else ".$extension"
         val targetFile = File(sharesDir, "$safeName$ext")
         return try {
